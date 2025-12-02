@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heytom.Cache.Tests", "Heyto
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heytom.Cache.Sample", "Heytom.Cache.Sample\Heytom.Cache.Sample.csproj", "{5CFE16C0-FDC0-4216-AFFA-1B9F62A50B75}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heytom.Cache.RabbitMQ", "Heytom.Cache.RabbitMQ\Heytom.Cache.RabbitMQ.csproj", "{88EA686E-7587-40A2-B108-FB270EDE6FBE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{5CFE16C0-FDC0-4216-AFFA-1B9F62A50B75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CFE16C0-FDC0-4216-AFFA-1B9F62A50B75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CFE16C0-FDC0-4216-AFFA-1B9F62A50B75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88EA686E-7587-40A2-B108-FB270EDE6FBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88EA686E-7587-40A2-B108-FB270EDE6FBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88EA686E-7587-40A2-B108-FB270EDE6FBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88EA686E-7587-40A2-B108-FB270EDE6FBE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

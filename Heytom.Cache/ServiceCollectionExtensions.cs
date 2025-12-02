@@ -1,9 +1,11 @@
+using Heytom.Cache.Invalidation;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using StackExchange.Redis;
 
 namespace Heytom.Cache;
 
@@ -115,13 +117,54 @@ public static class ServiceCollectionExtensions
         // 注册序列化器（默认使用 JsonSerializer）
         services.AddSingleton<ISerializer, JsonSerializer>();
         
+        // 注册 Redis 连接（用于缓存失效通知）
+        services.AddSingleton<IConnectionMultiplexer>(serviceProvider =>
+        {
+            var options = serviceProvider.GetRequiredService<IOptions<HybridCacheOptions>>().Value;
+            return ConnectionMultiplexer.Connect(options.RedisConnectionString);
+        });
+
+        // 注册缓存失效通知器（默认使用 Redis 实现）
+        services.AddSingleton<ICacheInvalidationNotifier>(serviceProvider =>
+        {
+            var options = serviceProvider.GetRequiredService<IOptions<HybridCacheOptions>>().Value;
+            
+            if (!options.EnableCacheInvalidation || !options.EnableLocalCache)
+            {
+                return NullCacheInvalidationNotifier.Instance;
+            }
+
+            var connection = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
+            var logger = serviceProvider.GetService<ILogger<RedisCacheInvalidationNotifier>>();
+            
+            return new RedisCacheInvalidationNotifier(connection, options.InvalidationChannel, logger);
+        });
+
+        // 注册缓存失效订阅器（默认使用 Redis 实现）
+        services.AddSingleton<ICacheInvalidationSubscriber>(serviceProvider =>
+        {
+            var options = serviceProvider.GetRequiredService<IOptions<HybridCacheOptions>>().Value;
+            
+            if (!options.EnableCacheInvalidation || !options.EnableLocalCache)
+            {
+                return NullCacheInvalidationSubscriber.Instance;
+            }
+
+            var connection = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
+            var logger = serviceProvider.GetService<ILogger<RedisCacheInvalidationSubscriber>>();
+            
+            return new RedisCacheInvalidationSubscriber(connection, options.InvalidationChannel, logger);
+        });
+        
         // 注册 HybridDistributedCache 作为 IDistributedCache 和 IRedisExtensions 的实现
         services.AddSingleton(serviceProvider =>
         {
             var options = serviceProvider.GetRequiredService<IOptions<HybridCacheOptions>>().Value;
             var logger = serviceProvider.GetService<ILogger<HybridDistributedCache>>();
+            var notifier = serviceProvider.GetService<ICacheInvalidationNotifier>();
+            var subscriber = serviceProvider.GetService<ICacheInvalidationSubscriber>();
             
-            return new HybridDistributedCache(options, logger);
+            return new HybridDistributedCache(options, logger, notifier, subscriber);
         });
         
         // 注册 IDistributedCache 接口

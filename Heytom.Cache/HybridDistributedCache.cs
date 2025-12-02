@@ -1,3 +1,4 @@
+using Heytom.Cache.Invalidation;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Polly;
@@ -17,6 +18,8 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
     private readonly HybridCacheOptions _options;
     private readonly ILogger<HybridDistributedCache>? _logger;
     private readonly MetricsCollector? _metricsCollector;
+    private readonly ICacheInvalidationNotifier? _invalidationNotifier;
+    private readonly ICacheInvalidationSubscriber? _invalidationSubscriber;
     private readonly ResiliencePipeline<byte[]?> _asyncGetPolicy;
     private readonly ResiliencePipeline<object?> _asyncSetPolicy;
     private readonly ResiliencePipeline<object?> _asyncRemovePolicy;
@@ -30,9 +33,13 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
     /// </summary>
     /// <param name="options">混合缓存配置选项</param>
     /// <param name="logger">日志记录器（可选）</param>
+    /// <param name="invalidationNotifier">缓存失效通知器（可选）</param>
+    /// <param name="invalidationSubscriber">缓存失效订阅器（可选）</param>
     public HybridDistributedCache(
         HybridCacheOptions options,
-        ILogger<HybridDistributedCache>? logger = null)
+        ILogger<HybridDistributedCache>? logger = null,
+        ICacheInvalidationNotifier? invalidationNotifier = null,
+        ICacheInvalidationSubscriber? invalidationSubscriber = null)
     {
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _logger = logger;
@@ -52,6 +59,19 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
         if (options.EnableMetrics)
         {
             _metricsCollector = new MetricsCollector();
+        }
+
+        // 初始化缓存失效通知/订阅机制
+        if (options.EnableCacheInvalidation && options.EnableLocalCache)
+        {
+            _invalidationNotifier = invalidationNotifier;
+            _invalidationSubscriber = invalidationSubscriber;
+
+            // 订阅缓存失效事件
+            if (_invalidationSubscriber != null && !_invalidationSubscriber.IsSubscribed)
+            {
+                _ = SubscribeToInvalidationEventsAsync();
+            }
         }
 
         // 初始化弹性策略（重试 + 断路器）
@@ -317,6 +337,9 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
                 _localCache.Set(key, value, options);
                 _logger?.LogDebug("Set cache value in local cache for key: {Key}", key);
             }
+
+            // 发布缓存失效通知（异步，不阻塞主流程）
+            _ = PublishInvalidationEventAsync(key, CacheInvalidationType.Update);
         }
         catch (Exception ex) when (ex is RedisConnectionException or RedisTimeoutException or TimeoutException or BrokenCircuitException)
         {
@@ -397,6 +420,9 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
                 await _localCache.SetAsync(key, value, options, token).ConfigureAwait(false);
                 _logger?.LogDebug("Set cache value in local cache for key: {Key}", key);
             }
+
+            // 发布缓存失效通知
+            await PublishInvalidationEventAsync(key, CacheInvalidationType.Update).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is RedisConnectionException or RedisTimeoutException or TimeoutException or BrokenCircuitException)
         {
@@ -515,6 +541,9 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
                 _localCache.Remove(key);
                 _logger?.LogDebug("Removed cache value from local cache for key: {Key}", key);
             }
+
+            // 发布缓存失效通知（异步，不阻塞主流程）
+            _ = PublishInvalidationEventAsync(key, CacheInvalidationType.Remove);
         }
         catch (Exception ex) when (ex is RedisConnectionException or RedisTimeoutException or TimeoutException or BrokenCircuitException)
         {
@@ -570,6 +599,9 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
                 await _localCache.RemoveAsync(key, token).ConfigureAwait(false);
                 _logger?.LogDebug("Removed cache value from local cache for key: {Key}", key);
             }
+
+            // 发布缓存失效通知
+            await PublishInvalidationEventAsync(key, CacheInvalidationType.Remove).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is RedisConnectionException or RedisTimeoutException or TimeoutException or BrokenCircuitException)
         {
@@ -714,6 +746,90 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
 
     #endregion
 
+    #region Cache Invalidation
+
+    /// <summary>
+    /// 订阅缓存失效事件
+    /// </summary>
+    private async Task SubscribeToInvalidationEventsAsync()
+    {
+        if (_invalidationSubscriber == null)
+        {
+            return;
+        }
+
+        try
+        {
+            await _invalidationSubscriber.SubscribeAsync(HandleInvalidationEventAsync).ConfigureAwait(false);
+            
+            _logger?.LogInformation("Successfully subscribed to cache invalidation events");
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to subscribe to cache invalidation events");
+        }
+    }
+
+    /// <summary>
+    /// 处理缓存失效事件
+    /// </summary>
+    private Task HandleInvalidationEventAsync(CacheInvalidationEvent @event)
+    {
+        if (@event == null || string.IsNullOrWhiteSpace(@event.Key))
+        {
+            return Task.CompletedTask;
+        }
+
+        try
+        {
+            // 只删除本地缓存，不再次发布失效消息（避免循环）
+            _localCache?.Remove(@event.Key);
+            
+            _logger?.LogDebug(
+                "Invalidated local cache for key: {Key}, Type: {Type}, Source: {Source}",
+                @event.Key,
+                @event.Type,
+                @event.Source);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Error handling cache invalidation event for key: {Key}", @event.Key);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// 发布缓存失效通知
+    /// </summary>
+    private async Task PublishInvalidationEventAsync(string key, CacheInvalidationType type)
+    {
+        if (_invalidationNotifier == null || !_options.EnableCacheInvalidation)
+        {
+            return;
+        }
+
+        try
+        {
+            var @event = new CacheInvalidationEvent
+            {
+                Key = key,
+                Type = type,
+                Timestamp = DateTimeOffset.UtcNow,
+                Source = Environment.MachineName // 可选：用于调试
+            };
+
+            await _invalidationNotifier.PublishAsync(@event).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            // 发布失败不应影响主流程
+            _logger?.LogWarning(ex, "Failed to publish cache invalidation event for key: {Key}", key);
+        }
+    }
+
+    #endregion
+
     private void ThrowIfDisposed()
     {
         if (_disposed)
@@ -726,6 +842,7 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
     {
         if (!_disposed)
         {
+            _invalidationSubscriber?.Dispose();
             _redisCache?.Dispose();
             _localCache?.Dispose();
             _disposed = true;

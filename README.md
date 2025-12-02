@@ -1,0 +1,325 @@
+# Heytom.Cache
+
+一个基于 .NET 8 的高性能分布式缓存库，实现了 Microsoft 的 `IDistributedCache` 接口，并提供 Redis 扩展功能和二级本地缓存支持。
+
+## 特性
+
+- ✅ 完整实现 `IDistributedCache` 接口
+- ✅ 二级缓存架构（本地内存缓存 + Redis）
+- ✅ Redis 扩展功能（Hash、List、Set、Sorted Set、Pub/Sub）
+- ✅ 强类型对象序列化支持
+- ✅ 弹性和容错机制（使用 Polly）
+- ✅ 性能指标收集和监控
+- ✅ 健康检查集成
+- ✅ 可配置的过期策略（绝对过期、滑动过期）
+- ✅ 异步优先的 API 设计
+- ✅ RabbitMQ 缓存失效通知支持
+
+## 快速开始
+
+### 安装
+
+```bash
+dotnet add package Heytom.Cache
+```
+
+如需 RabbitMQ 支持：
+
+```bash
+dotnet add package Heytom.Cache.RabbitMQ
+```
+
+### 基本配置
+
+在 `Program.cs` 中配置服务：
+
+```csharp
+using Heytom.Cache;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// 添加分布式缓存服务
+builder.Services.AddDistributedCache(options =>
+{
+    options.RedisConnectionString = "localhost:6379";
+    options.EnableLocalCache = true;
+    options.LocalCacheMaxSize = 1000;
+    options.LocalCacheDefaultExpiration = TimeSpan.FromMinutes(5);
+    options.RedisOperationTimeout = TimeSpan.FromSeconds(5);
+    options.EnableMetrics = true;
+});
+
+var app = builder.Build();
+app.Run();
+```
+
+### 基本使用
+
+#### 标准 IDistributedCache 操作
+
+```csharp
+public class ProductService
+{
+    private readonly IDistributedCache _cache;
+
+    public ProductService(IDistributedCache cache)
+    {
+        _cache = cache;
+    }
+
+    public async Task<Product?> GetProductAsync(int id)
+    {
+        var key = $"product:{id}";
+        
+        // 从缓存获取
+        var product = await _cache.GetAsync<Product>(key);
+        
+        if (product == null)
+        {
+            // 从数据库加载
+            product = await LoadFromDatabaseAsync(id);
+            
+            // 存入缓存，5分钟后过期
+            await _cache.SetAsync(key, product, new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+            });
+        }
+        
+        return product;
+    }
+}
+```
+
+#### Redis 扩展功能
+
+```csharp
+public class CartService
+{
+    private readonly IRedisExtensions _redis;
+
+    public CartService(IRedisExtensions redis)
+    {
+        _redis = redis;
+    }
+
+    // Hash 操作
+    public async Task AddToCartAsync(string userId, string productId, int quantity)
+    {
+        var key = $"cart:{userId}";
+        var value = JsonSerializer.SerializeToUtf8Bytes(new { productId, quantity });
+        await _redis.HashSetAsync(key, productId, value);
+    }
+
+    public async Task<Dictionary<string, byte[]>> GetCartAsync(string userId)
+    {
+        var key = $"cart:{userId}";
+        return await _redis.HashGetAllAsync(key);
+    }
+
+    // List 操作
+    public async Task AddToRecentViewsAsync(string userId, string productId)
+    {
+        var key = $"recent:{userId}";
+        var value = Encoding.UTF8.GetBytes(productId);
+        await _redis.ListPushAsync(key, value);
+    }
+
+    // Pub/Sub
+    public async Task NotifyPriceChangeAsync(string productId, decimal newPrice)
+    {
+        var message = JsonSerializer.SerializeToUtf8Bytes(new { productId, newPrice });
+        await _redis.PublishAsync("price-updates", message);
+    }
+}
+```
+
+## 配置选项
+
+### HybridCacheOptions
+
+| 选项 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `RedisConnectionString` | `string` | 必填 | Redis 连接字符串 |
+| `EnableLocalCache` | `bool` | `true` | 是否启用本地缓存 |
+| `LocalCacheMaxSize` | `int` | `1000` | 本地缓存最大条目数 |
+| `LocalCacheDefaultExpiration` | `TimeSpan` | `5分钟` | 本地缓存默认过期时间 |
+| `RedisOperationTimeout` | `TimeSpan` | `5秒` | Redis 操作超时时间 |
+| `EnableMetrics` | `bool` | `true` | 是否启用性能指标收集 |
+
+### appsettings.json 配置
+
+```json
+{
+  "ConnectionStrings": {
+    "Redis": "localhost:6379,password=yourpassword,ssl=true"
+  },
+  "HybridCache": {
+    "EnableLocalCache": true,
+    "LocalCacheMaxSize": 1000,
+    "LocalCacheDefaultExpiration": "00:05:00",
+    "RedisOperationTimeout": "00:00:05",
+    "EnableMetrics": true
+  }
+}
+```
+
+然后在代码中绑定配置：
+
+```csharp
+builder.Services.AddDistributedCache(
+    builder.Configuration.GetSection("HybridCache"));
+```
+
+## 高级功能
+
+### 缓存失效通知
+
+使用 RabbitMQ 实现跨实例的缓存失效通知：
+
+```csharp
+// 安装 Heytom.Cache.RabbitMQ 包
+builder.Services.AddRabbitMQCacheInvalidation(options =>
+{
+    options.HostName = "localhost";
+    options.Port = 5672;
+    options.UserName = "guest";
+    options.Password = "guest";
+    options.ExchangeName = "cache-invalidation";
+});
+```
+
+
+### 性能监控
+
+获取缓存性能指标：
+
+```csharp
+public class MetricsController : ControllerBase
+{
+    private readonly MetricsCollector _metrics;
+
+    [HttpGet("cache/metrics")]
+    public ActionResult<CacheMetrics> GetMetrics()
+    {
+        return _metrics.GetMetrics();
+    }
+}
+```
+
+返回的指标包括：
+- 总请求数
+- 缓存命中数/未命中数
+- 命中率
+- 平均响应时间
+- 本地缓存命中数
+- Redis 命中数
+
+### 健康检查
+
+```csharp
+builder.Services.AddHealthChecks()
+    .AddCheck<CacheHealthCheck>("cache");
+
+app.MapHealthChecks("/health");
+```
+
+健康检查会验证：
+- Redis 连接状态
+- 基本读写操作
+- 响应时间
+
+## 架构设计
+
+### 二级缓存流程
+
+```
+应用请求
+    ↓
+本地缓存查找
+    ↓
+命中? → 是 → 返回数据
+    ↓ 否
+Redis 查找
+    ↓
+命中? → 是 → 更新本地缓存 → 返回数据
+    ↓ 否
+返回 null
+```
+
+### 容错机制
+
+- **重试策略**: 使用 Polly 实现指数退避重试（最多 3 次）
+- **断路器**: 连续失败后暂时停止访问 Redis
+- **优雅降级**: Redis 不可用时继续使用本地缓存
+- **超时控制**: 所有操作都有可配置的超时时间
+
+## 性能优势
+
+- **减少网络延迟**: 本地缓存可将响应时间从 ~5ms 降至 ~0.1ms
+- **降低 Redis 负载**: 本地缓存可减少 60-80% 的 Redis 请求
+- **提高可用性**: Redis 故障时仍可从本地缓存提供服务
+- **LRU 驱逐**: 自动管理本地缓存大小，防止内存溢出
+
+## 示例项目
+
+查看 `Heytom.Cache.Sample` 项目获取完整示例：
+
+```bash
+cd Heytom.Cache.Sample
+dotnet run
+```
+
+访问 Swagger UI: `https://localhost:5001/swagger`
+
+示例包括：
+- 基本缓存操作
+- Redis 扩展功能演示
+- 性能指标查询
+- 健康检查端点
+
+## 测试
+
+运行单元测试：
+
+```bash
+dotnet test Heytom.Cache.Tests
+```
+
+测试覆盖：
+- 基本缓存操作
+- 过期策略
+- 容错和弹性
+- 性能指标
+- 健康检查
+- 服务注册
+
+## 依赖项
+
+- .NET 8.0
+- StackExchange.Redis 2.10.1
+- Microsoft.Extensions.Caching.Memory 10.0.0
+- Polly 8.6.5
+- RabbitMQ.Client 6.8.1 (可选)
+
+## 许可证
+
+本项目采用 MIT 许可证。详见 [LICENSE](LICENSE) 文件。
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+## 路线图
+
+- [ ] 支持 Redis Cluster 分片
+- [ ] 支持主从复制和哨兵模式
+- [ ] 缓存预热机制
+- [ ] 智能预取功能
+- [ ] 缓存标签和批量失效
+- [ ] OpenTelemetry 集成
+- [ ] Prometheus 指标导出
+
+## 联系方式
+
+如有问题或建议，请提交 Issue。
