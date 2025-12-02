@@ -24,11 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Xunit" />
+    <ProjectReference Include="..\..\src\Heytom.Cache\Heytom.Cache.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Heytom.Cache\Heytom.Cache.csproj" />
+    <Using Include="Xunit" />
   </ItemGroup>
 
 </Project>

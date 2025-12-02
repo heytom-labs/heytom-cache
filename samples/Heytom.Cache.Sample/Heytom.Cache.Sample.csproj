@@ -12,7 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Heytom.Cache\Heytom.Cache.csproj" />
+    <ProjectReference Include="..\..\src\Heytom.Cache.RabbitMQ\Heytom.Cache.RabbitMQ.csproj" />
+    <ProjectReference Include="..\..\src\Heytom.Cache\Heytom.Cache.csproj" />
   </ItemGroup>
 
 </Project>

@@ -4,7 +4,26 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>Heytom.Cache</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Heytom Labs</Authors>
+    <Company>Heytom Labs</Company>
+    <Description>高性能分布式缓存库，实现 IDistributedCache 接口，支持 Redis 和二级本地缓存</Description>
+    <PackageTags>cache;distributed-cache;redis;memory-cache;hybrid-cache;dotnet</PackageTags>
+    <PackageProjectUrl>https://github.com/heytom-labs/heytom-cache</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/heytom-labs/heytom-cache</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.0" />

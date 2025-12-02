@@ -3,13 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heytom.Cache", "Heytom.Cache\Heytom.Cache.csproj", "{47112B84-A4C1-4EF3-9850-040EF73F3553}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heytom.Cache.Tests", "Heytom.Cache.Tests\Heytom.Cache.Tests.csproj", "{25909ABF-DA2D-4981-A5AC-3E6083700476}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC943}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heytom.Cache.Sample", "Heytom.Cache.Sample\Heytom.Cache.Sample.csproj", "{5CFE16C0-FDC0-4216-AFFA-1B9F62A50B75}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC944}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heytom.Cache.RabbitMQ", "Heytom.Cache.RabbitMQ\Heytom.Cache.RabbitMQ.csproj", "{88EA686E-7587-40A2-B108-FB270EDE6FBE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heytom.Cache", "src\Heytom.Cache\Heytom.Cache.csproj", "{47112B84-A4C1-4EF3-9850-040EF73F3553}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heytom.Cache.Tests", "tests\Heytom.Cache.Tests\Heytom.Cache.Tests.csproj", "{25909ABF-DA2D-4981-A5AC-3E6083700476}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heytom.Cache.Sample", "samples\Heytom.Cache.Sample\Heytom.Cache.Sample.csproj", "{5CFE16C0-FDC0-4216-AFFA-1B9F62A50B75}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heytom.Cache.RabbitMQ", "src\Heytom.Cache.RabbitMQ\Heytom.Cache.RabbitMQ.csproj", "{88EA686E-7587-40A2-B108-FB270EDE6FBE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,6 +24,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{47112B84-A4C1-4EF3-9850-040EF73F3553} = {8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}
+		{88EA686E-7587-40A2-B108-FB270EDE6FBE} = {8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}
+		{25909ABF-DA2D-4981-A5AC-3E6083700476} = {8BC9CEB8-8B4A-11D0-8D11-00A0C91BC943}
+		{5CFE16C0-FDC0-4216-AFFA-1B9F62A50B75} = {8BC9CEB8-8B4A-11D0-8D11-00A0C91BC944}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{47112B84-A4C1-4EF3-9850-040EF73F3553}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
