@@ -1,0 +1,6 @@
+@Heytom.Cache.Sample_HostAddress = http://localhost:5071
+
+GET {{Heytom.Cache.Sample_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
