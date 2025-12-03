@@ -109,7 +109,7 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
 
         if (_metricsCollector != null)
         {
-            return _metricsCollector.MeasureOperation(
+            return MetricsCollector.MeasureOperation(
                 () => GetInternal(key),
                 (elapsed, result) =>
                 {
@@ -148,11 +148,11 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
         {
             // 使用弹性策略从 Redis 获取（重试 + 断路器）
             var redisValue = _syncGetPolicy.Execute(() => _redisCache.Get(key));
-            
+
             if (redisValue != null)
             {
                 _logger?.LogDebug("Cache hit in Redis for key: {Key}", key);
-                
+
                 // 填充本地缓存
                 if (_localCache != null)
                 {
@@ -170,18 +170,18 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
         catch (Exception ex) when (ex is RedisConnectionException or RedisTimeoutException or TimeoutException or BrokenCircuitException)
         {
             _logger?.LogError(ex, "Redis operation failed for key: {Key}", key);
-            
+
             // 降级到本地缓存（如果可用）
             if (_localCache != null)
             {
                 _logger?.LogWarning("Degrading to local cache due to Redis failure for key: {Key}", key);
                 return _localCache.Get(key);
             }
-            
+
             // 如果本地缓存未启用，抛出明确的异常
             _logger?.LogError("Redis unavailable and local cache is disabled. Cannot retrieve key: {Key}", key);
             throw new InvalidOperationException(
-                $"Redis is unavailable and local cache is disabled. Cannot retrieve cache value for key: {key}", 
+                $"Redis is unavailable and local cache is disabled. Cannot retrieve cache value for key: {key}",
                 ex);
         }
     }
@@ -205,7 +205,7 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
 
         if (_metricsCollector != null)
         {
-            return await _metricsCollector.MeasureOperationAsync(
+            return await MetricsCollector.MeasureOperationAsync(
                 () => GetAsyncInternal(key, token),
                 (elapsed, result) =>
                 {
@@ -247,11 +247,11 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
             var redisValue = await _asyncGetPolicy.ExecuteAsync(
                 async ct => await _redisCache.GetAsync(key, ct).ConfigureAwait(false),
                 token).ConfigureAwait(false);
-            
+
             if (redisValue != null)
             {
                 _logger?.LogDebug("Cache hit in Redis for key: {Key}", key);
-                
+
                 // 填充本地缓存
                 if (_localCache != null)
                 {
@@ -269,18 +269,18 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
         catch (Exception ex) when (ex is RedisConnectionException or RedisTimeoutException or TimeoutException or BrokenCircuitException)
         {
             _logger?.LogError(ex, "Redis operation failed for key: {Key}", key);
-            
+
             // 降级到本地缓存（如果可用）
             if (_localCache != null)
             {
                 _logger?.LogWarning("Degrading to local cache due to Redis failure for key: {Key}", key);
                 return await _localCache.GetAsync(key, token).ConfigureAwait(false);
             }
-            
+
             // 如果本地缓存未启用，抛出明确的异常
             _logger?.LogError("Redis unavailable and local cache is disabled. Cannot retrieve key: {Key}", key);
             throw new InvalidOperationException(
-                $"Redis is unavailable and local cache is disabled. Cannot retrieve cache value for key: {key}", 
+                $"Redis is unavailable and local cache is disabled. Cannot retrieve cache value for key: {key}",
                 ex);
         }
     }
@@ -309,13 +309,13 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
 
         if (_metricsCollector != null)
         {
-            _metricsCollector.MeasureOperation(
+            MetricsCollector.MeasureOperation(
                 () =>
                 {
                     SetInternal(key, value, options);
                     return true;
                 },
-                (elapsed, _) => _metricsCollector.RecordOperation(elapsed));
+                (elapsed, _) => _metricsCollector.RecordOperation("set", elapsed));
         }
         else
         {
@@ -344,7 +344,7 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
         catch (Exception ex) when (ex is RedisConnectionException or RedisTimeoutException or TimeoutException or BrokenCircuitException)
         {
             _logger?.LogError(ex, "Redis operation failed for key: {Key}", key);
-            
+
             // 降级：仅更新本地缓存（如果可用）
             if (_localCache != null)
             {
@@ -352,11 +352,11 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
                 _localCache.Set(key, value, options);
                 return;
             }
-            
+
             // 如果本地缓存未启用，抛出明确的异常
             _logger?.LogError("Redis unavailable and local cache is disabled. Cannot set key: {Key}", key);
             throw new InvalidOperationException(
-                $"Redis is unavailable and local cache is disabled. Cannot set cache value for key: {key}", 
+                $"Redis is unavailable and local cache is disabled. Cannot set cache value for key: {key}",
                 ex);
         }
     }
@@ -386,13 +386,13 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
 
         if (_metricsCollector != null)
         {
-            await _metricsCollector.MeasureOperationAsync(
+            await MetricsCollector.MeasureOperationAsync(
                 async () =>
                 {
                     await SetAsyncInternal(key, value, options, token).ConfigureAwait(false);
                     return true;
                 },
-                (elapsed, _) => _metricsCollector.RecordOperation(elapsed)).ConfigureAwait(false);
+                (elapsed, _) => _metricsCollector.RecordOperation("set", elapsed)).ConfigureAwait(false);
         }
         else
         {
@@ -406,7 +406,7 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
         {
             // 使用弹性策略更新 Redis（重试 + 断路器）
             await _asyncSetPolicy.ExecuteAsync(
-                async ct => 
+                async ct =>
                 {
                     await _redisCache.SetAsync(key, value, options, ct).ConfigureAwait(false);
                     return (object?)null;
@@ -427,7 +427,7 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
         catch (Exception ex) when (ex is RedisConnectionException or RedisTimeoutException or TimeoutException or BrokenCircuitException)
         {
             _logger?.LogError(ex, "Redis operation failed for key: {Key}", key);
-            
+
             // 降级：仅更新本地缓存（如果可用）
             if (_localCache != null)
             {
@@ -435,11 +435,11 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
                 await _localCache.SetAsync(key, value, options, token).ConfigureAwait(false);
                 return;
             }
-            
+
             // 如果本地缓存未启用，抛出明确的异常
             _logger?.LogError("Redis unavailable and local cache is disabled. Cannot set key: {Key}", key);
             throw new InvalidOperationException(
-                $"Redis is unavailable and local cache is disabled. Cannot set cache value for key: {key}", 
+                $"Redis is unavailable and local cache is disabled. Cannot set cache value for key: {key}",
                 ex);
         }
     }
@@ -548,7 +548,7 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
         catch (Exception ex) when (ex is RedisConnectionException or RedisTimeoutException or TimeoutException or BrokenCircuitException)
         {
             _logger?.LogError(ex, "Redis operation failed for key: {Key}", key);
-            
+
             // 降级：仅从本地缓存删除（如果可用）
             if (_localCache != null)
             {
@@ -556,11 +556,11 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
                 _localCache.Remove(key);
                 return;
             }
-            
+
             // 如果本地缓存未启用，抛出明确的异常
             _logger?.LogError("Redis unavailable and local cache is disabled. Cannot remove key: {Key}", key);
             throw new InvalidOperationException(
-                $"Redis is unavailable and local cache is disabled. Cannot remove cache value for key: {key}", 
+                $"Redis is unavailable and local cache is disabled. Cannot remove cache value for key: {key}",
                 ex);
         }
     }
@@ -585,7 +585,7 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
         {
             // 使用弹性策略从 Redis 删除（重试 + 断路器）
             await _asyncRemovePolicy.ExecuteAsync(
-                async ct => 
+                async ct =>
                 {
                     await _redisCache.RemoveAsync(key, ct).ConfigureAwait(false);
                     return (object?)null;
@@ -606,7 +606,7 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
         catch (Exception ex) when (ex is RedisConnectionException or RedisTimeoutException or TimeoutException or BrokenCircuitException)
         {
             _logger?.LogError(ex, "Redis operation failed for key: {Key}", key);
-            
+
             // 降级：仅从本地缓存删除（如果可用）
             if (_localCache != null)
             {
@@ -614,11 +614,11 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
                 await _localCache.RemoveAsync(key, token).ConfigureAwait(false);
                 return;
             }
-            
+
             // 如果本地缓存未启用，抛出明确的异常
             _logger?.LogError("Redis unavailable and local cache is disabled. Cannot remove key: {Key}", key);
             throw new InvalidOperationException(
-                $"Redis is unavailable and local cache is disabled. Cannot remove cache value for key: {key}", 
+                $"Redis is unavailable and local cache is disabled. Cannot remove cache value for key: {key}",
                 ex);
         }
     }
@@ -627,86 +627,167 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
 
     #region IRedisExtensions Implementation
 
-    // 将 Redis 扩展功能委托给 RedisCache
-
+    /// <summary>
+    /// 在 Redis Hash 中设置字段值
+    /// </summary>
+    /// <param name="key">Hash 键</param>
+    /// <param name="field">字段名</param>
+    /// <param name="value">字段值</param>
+    /// <returns>如果字段是新创建的返回 true，如果字段已存在并被更新返回 false</returns>
     public Task<bool> HashSetAsync(string key, string field, byte[] value)
     {
         ThrowIfDisposed();
         return _redisCache.HashSetAsync(key, field, value);
     }
 
+    /// <summary>
+    /// 从 Redis Hash 中获取字段值
+    /// </summary>
+    /// <param name="key">Hash 键</param>
+    /// <param name="field">字段名</param>
+    /// <returns>字段值，如果字段不存在则返回 null</returns>
     public Task<byte[]?> HashGetAsync(string key, string field)
     {
         ThrowIfDisposed();
         return _redisCache.HashGetAsync(key, field);
     }
 
+    /// <summary>
+    /// 获取 Redis Hash 中的所有字段和值
+    /// </summary>
+    /// <param name="key">Hash 键</param>
+    /// <returns>包含所有字段和值的字典</returns>
     public Task<Dictionary<string, byte[]>> HashGetAllAsync(string key)
     {
         ThrowIfDisposed();
         return _redisCache.HashGetAllAsync(key);
     }
 
+    /// <summary>
+    /// 从 Redis Hash 中删除字段
+    /// </summary>
+    /// <param name="key">Hash 键</param>
+    /// <param name="field">字段名</param>
+    /// <returns>如果字段被删除返回 true，如果字段不存在返回 false</returns>
     public Task<bool> HashDeleteAsync(string key, string field)
     {
         ThrowIfDisposed();
         return _redisCache.HashDeleteAsync(key, field);
     }
 
+    /// <summary>
+    /// 将值推入 Redis List 的头部
+    /// </summary>
+    /// <param name="key">List 键</param>
+    /// <param name="value">要推入的值</param>
+    /// <returns>推入后 List 的长度</returns>
     public Task<long> ListPushAsync(string key, byte[] value)
     {
         ThrowIfDisposed();
         return _redisCache.ListPushAsync(key, value);
     }
 
+    /// <summary>
+    /// 从 Redis List 的头部弹出值
+    /// </summary>
+    /// <param name="key">List 键</param>
+    /// <returns>弹出的值，如果 List 为空则返回 null</returns>
     public Task<byte[]?> ListPopAsync(string key)
     {
         ThrowIfDisposed();
         return _redisCache.ListPopAsync(key);
     }
 
+    /// <summary>
+    /// 获取 Redis List 的长度
+    /// </summary>
+    /// <param name="key">List 键</param>
+    /// <returns>List 的长度</returns>
     public Task<long> ListLengthAsync(string key)
     {
         ThrowIfDisposed();
         return _redisCache.ListLengthAsync(key);
     }
 
+    /// <summary>
+    /// 向 Redis Set 中添加成员
+    /// </summary>
+    /// <param name="key">Set 键</param>
+    /// <param name="value">要添加的成员</param>
+    /// <returns>如果成员是新添加的返回 true，如果成员已存在返回 false</returns>
     public Task<bool> SetAddAsync(string key, byte[] value)
     {
         ThrowIfDisposed();
         return _redisCache.SetAddAsync(key, value);
     }
 
+    /// <summary>
+    /// 从 Redis Set 中移除成员
+    /// </summary>
+    /// <param name="key">Set 键</param>
+    /// <param name="value">要移除的成员</param>
+    /// <returns>如果成员被移除返回 true，如果成员不存在返回 false</returns>
     public Task<bool> SetRemoveAsync(string key, byte[] value)
     {
         ThrowIfDisposed();
         return _redisCache.SetRemoveAsync(key, value);
     }
 
+    /// <summary>
+    /// 获取 Redis Set 中的所有成员
+    /// </summary>
+    /// <param name="key">Set 键</param>
+    /// <returns>包含所有成员的数组</returns>
     public Task<byte[][]> SetMembersAsync(string key)
     {
         ThrowIfDisposed();
         return _redisCache.SetMembersAsync(key);
     }
 
+    /// <summary>
+    /// 向 Redis Sorted Set 中添加成员及其分数
+    /// </summary>
+    /// <param name="key">Sorted Set 键</param>
+    /// <param name="value">要添加的成员</param>
+    /// <param name="score">成员的分数</param>
+    /// <returns>如果成员是新添加的返回 true，如果成员已存在并更新了分数返回 false</returns>
     public Task<bool> SortedSetAddAsync(string key, byte[] value, double score)
     {
         ThrowIfDisposed();
         return _redisCache.SortedSetAddAsync(key, value, score);
     }
 
+    /// <summary>
+    /// 根据分数范围获取 Redis Sorted Set 中的成员
+    /// </summary>
+    /// <param name="key">Sorted Set 键</param>
+    /// <param name="min">最小分数（包含）</param>
+    /// <param name="max">最大分数（包含）</param>
+    /// <returns>包含指定分数范围内所有成员的数组</returns>
     public Task<byte[][]> SortedSetRangeByScoreAsync(string key, double min, double max)
     {
         ThrowIfDisposed();
         return _redisCache.SortedSetRangeByScoreAsync(key, min, max);
     }
 
+    /// <summary>
+    /// 向 Redis 频道发布消息
+    /// </summary>
+    /// <param name="channel">频道名称</param>
+    /// <param name="message">要发布的消息</param>
+    /// <returns>表示异步操作的任务</returns>
     public Task PublishAsync(string channel, byte[] message)
     {
         ThrowIfDisposed();
         return _redisCache.PublishAsync(channel, message);
     }
 
+    /// <summary>
+    /// 订阅 Redis 频道并处理接收到的消息
+    /// </summary>
+    /// <param name="channel">频道名称</param>
+    /// <param name="handler">消息处理器</param>
+    /// <returns>表示异步操作的任务</returns>
     public Task SubscribeAsync(string channel, Action<byte[]> handler)
     {
         ThrowIfDisposed();
@@ -761,7 +842,7 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
         try
         {
             await _invalidationSubscriber.SubscribeAsync(HandleInvalidationEventAsync).ConfigureAwait(false);
-            
+
             _logger?.LogInformation("Successfully subscribed to cache invalidation events");
         }
         catch (Exception ex)
@@ -784,7 +865,7 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
         {
             // 只删除本地缓存，不再次发布失效消息（避免循环）
             _localCache?.Remove(@event.Key);
-            
+
             _logger?.LogDebug(
                 "Invalidated local cache for key: {Key}, Type: {Type}, Source: {Source}",
                 @event.Key,
@@ -838,6 +919,10 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
         }
     }
 
+    /// <summary>
+    /// 释放 HybridDistributedCache 使用的所有资源
+    /// 包括 Redis 连接、本地缓存和缓存失效订阅
+    /// </summary>
     public void Dispose()
     {
         if (!_disposed)
@@ -846,7 +931,7 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
             _redisCache?.Dispose();
             _localCache?.Dispose();
             _disposed = true;
-            
+
             _logger?.LogInformation("HybridDistributedCache disposed");
         }
     }

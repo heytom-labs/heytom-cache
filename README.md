@@ -192,6 +192,8 @@ builder.Services.AddRabbitMQCacheInvalidation(options =>
 
 ### 性能监控
 
+#### 传统方式
+
 获取缓存性能指标：
 
 ```csharp
@@ -214,6 +216,26 @@ public class MetricsController : ControllerBase
 - 平均响应时间
 - 本地缓存命中数
 - Redis 命中数
+
+#### OpenTelemetry 集成
+
+Heytom.Cache 完全支持 OpenTelemetry 指标规范。配置方式：
+
+```csharp
+using OpenTelemetry.Metrics;
+
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics =>
+    {
+        metrics
+            .AddMeter("Heytom.Cache")
+            .AddPrometheusExporter();  // 或其他导出器
+    });
+
+app.MapPrometheusScrapingEndpoint();
+```
+
+详细的 OpenTelemetry 配置和指标说明，请参阅 [METRICS.md](src/Heytom.Cache/METRICS.md)。
 
 ### 健康检查
 
@@ -317,7 +339,7 @@ dotnet test Heytom.Cache.Tests
 - [ ] 缓存预热机制
 - [ ] 智能预取功能
 - [ ] 缓存标签和批量失效
-- [ ] OpenTelemetry 集成
+- [x] OpenTelemetry 集成
 - [ ] Prometheus 指标导出
 
 ## 联系方式
