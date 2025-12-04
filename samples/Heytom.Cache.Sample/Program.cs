@@ -1,5 +1,6 @@
 using Heytom.Cache;
 using Microsoft.Extensions.Caching.Distributed;
+using OpenTelemetry.Metrics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +12,7 @@ builder.Services.AddSwaggerGen();
 // Configure distributed cache with Redis and local cache
 builder.Services.AddDistributedCache(options =>
 {
-    options.RedisConnectionString = builder.Configuration.GetConnectionString("Redis") 
+    options.RedisConnectionString = builder.Configuration.GetConnectionString("Redis")
         ?? "localhost:6379";
     options.EnableLocalCache = true;
     options.LocalCacheMaxSize = 1000;
@@ -19,6 +20,15 @@ builder.Services.AddDistributedCache(options =>
     options.RedisOperationTimeout = TimeSpan.FromSeconds(5);
     options.EnableMetrics = true;
 });
+
+// Configure OpenTelemetry with Prometheus exporter
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics =>
+    {
+        metrics
+            .AddMeter("Heytom.Cache")
+            .AddPrometheusExporter();
+    });
 
 // Add health checks
 builder.Services.AddHealthChecks()
@@ -33,11 +43,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthorization();
+
 app.MapControllers();
 
 // Map health check endpoint
 app.MapHealthChecks("/health");
+
+// Map Prometheus metrics endpoint
+app.MapPrometheusScrapingEndpoint();
+
 
 app.Run();

@@ -29,10 +29,10 @@ public static class ServiceCollectionExtensions
 
         // 配置选项
         services.Configure(configureOptions);
-        
+
         // 注册核心服务
         RegisterCoreServices(services);
-        
+
         return services;
     }
 
@@ -51,10 +51,10 @@ public static class ServiceCollectionExtensions
 
         // 从配置绑定选项
         services.Configure<HybridCacheOptions>(configuration);
-        
+
         // 注册核心服务
         RegisterCoreServices(services);
-        
+
         return services;
     }
 
@@ -69,7 +69,7 @@ public static class ServiceCollectionExtensions
         string redisConnectionString)
     {
         ArgumentNullException.ThrowIfNull(services);
-        
+
         if (string.IsNullOrWhiteSpace(redisConnectionString))
         {
             throw new ArgumentException("Redis connection string cannot be null or empty.", nameof(redisConnectionString));
@@ -80,10 +80,10 @@ public static class ServiceCollectionExtensions
         {
             options.RedisConnectionString = redisConnectionString;
         });
-        
+
         // 注册核心服务
         RegisterCoreServices(services);
-        
+
         return services;
     }
 
@@ -116,7 +116,7 @@ public static class ServiceCollectionExtensions
     {
         // 注册序列化器（默认使用 JsonSerializer）
         services.AddSingleton<ISerializer, JsonSerializer>();
-        
+
         // 注册 Redis 连接（用于缓存失效通知）
         services.AddSingleton<IConnectionMultiplexer>(serviceProvider =>
         {
@@ -128,7 +128,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ICacheInvalidationNotifier>(serviceProvider =>
         {
             var options = serviceProvider.GetRequiredService<IOptions<HybridCacheOptions>>().Value;
-            
+
             if (!options.EnableCacheInvalidation || !options.EnableLocalCache)
             {
                 return NullCacheInvalidationNotifier.Instance;
@@ -136,7 +136,7 @@ public static class ServiceCollectionExtensions
 
             var connection = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
             var logger = serviceProvider.GetService<ILogger<RedisCacheInvalidationNotifier>>();
-            
+
             return new RedisCacheInvalidationNotifier(connection, options.InvalidationChannel, logger);
         });
 
@@ -144,7 +144,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ICacheInvalidationSubscriber>(serviceProvider =>
         {
             var options = serviceProvider.GetRequiredService<IOptions<HybridCacheOptions>>().Value;
-            
+
             if (!options.EnableCacheInvalidation || !options.EnableLocalCache)
             {
                 return NullCacheInvalidationSubscriber.Instance;
@@ -152,10 +152,10 @@ public static class ServiceCollectionExtensions
 
             var connection = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
             var logger = serviceProvider.GetService<ILogger<RedisCacheInvalidationSubscriber>>();
-            
+
             return new RedisCacheInvalidationSubscriber(connection, options.InvalidationChannel, logger);
         });
-        
+
         // 注册 HybridDistributedCache 作为 IDistributedCache 和 IRedisExtensions 的实现
         services.AddSingleton(serviceProvider =>
         {
@@ -163,16 +163,28 @@ public static class ServiceCollectionExtensions
             var logger = serviceProvider.GetService<ILogger<HybridDistributedCache>>();
             var notifier = serviceProvider.GetService<ICacheInvalidationNotifier>();
             var subscriber = serviceProvider.GetService<ICacheInvalidationSubscriber>();
-            
+
             return new HybridDistributedCache(options, logger, notifier, subscriber);
         });
-        
+
         // 注册 IDistributedCache 接口
         services.AddSingleton<IDistributedCache>(serviceProvider =>
             serviceProvider.GetRequiredService<HybridDistributedCache>());
-        
+
         // 注册 IRedisExtensions 接口
         services.AddSingleton<IRedisExtensions>(serviceProvider =>
             serviceProvider.GetRequiredService<HybridDistributedCache>());
+
+        // 注册 MetricsCollector（从 HybridDistributedCache 获取，如果启用了指标收集）
+        services.AddSingleton<MetricsCollector>(serviceProvider =>
+        {
+            var cache = serviceProvider.GetRequiredService<HybridDistributedCache>();
+            if (cache.MetricsCollector == null)
+            {
+                throw new InvalidOperationException(
+                    "MetricsCollector is not available. Ensure EnableMetrics is set to true in HybridCacheOptions.");
+            }
+            return cache.MetricsCollector;
+        });
     }
 }

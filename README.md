@@ -217,9 +217,18 @@ public class MetricsController : ControllerBase
 - 本地缓存命中数
 - Redis 命中数
 
-#### OpenTelemetry 集成
+#### OpenTelemetry 和 Prometheus 集成
 
-Heytom.Cache 完全支持 OpenTelemetry 指标规范。配置方式：
+Heytom.Cache 完全支持 OpenTelemetry 指标规范，可以轻松导出到 Prometheus、Grafana 等监控系统。
+
+**安装 Prometheus 导出器：**
+
+```bash
+dotnet add package OpenTelemetry.Extensions.Hosting
+dotnet add package OpenTelemetry.Exporter.Prometheus.AspNetCore
+```
+
+**配置方式：**
 
 ```csharp
 using OpenTelemetry.Metrics;
@@ -229,13 +238,21 @@ builder.Services.AddOpenTelemetry()
     {
         metrics
             .AddMeter("Heytom.Cache")
-            .AddPrometheusExporter();  // 或其他导出器
+            .AddPrometheusExporter();  // 导出到 Prometheus
     });
 
-app.MapPrometheusScrapingEndpoint();
+app.MapPrometheusScrapingEndpoint();  // 暴露 /metrics 端点
 ```
 
-详细的 OpenTelemetry 配置和指标说明，请参阅 [METRICS.md](src/Heytom.Cache/METRICS.md)。
+**可用指标：**
+- `cache_requests_total` - 缓存请求总数
+- `cache_hits_total` - 缓存命中总数
+- `cache_misses_total` - 缓存未命中总数
+- `cache_operation_duration_milliseconds` - 操作耗时直方图
+
+详细的 Prometheus 配置和 Grafana 查询示例，请参阅：
+- [快速开始指南](docs/QUICKSTART-PROMETHEUS.md) - 5 分钟快速设置
+- [完整文档](docs/PROMETHEUS.md) - 详细配置和查询示例
 
 ### 健康检查
 
@@ -340,7 +357,7 @@ dotnet test Heytom.Cache.Tests
 - [ ] 智能预取功能
 - [ ] 缓存标签和批量失效
 - [x] OpenTelemetry 集成
-- [ ] Prometheus 指标导出
+- [x] Prometheus 指标导出
 
 ## 联系方式
 

@@ -20,6 +20,11 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
     private readonly MetricsCollector? _metricsCollector;
     private readonly ICacheInvalidationNotifier? _invalidationNotifier;
     private readonly ICacheInvalidationSubscriber? _invalidationSubscriber;
+
+    /// <summary>
+    /// 获取指标收集器实例（如果启用了指标收集）
+    /// </summary>
+    public MetricsCollector? MetricsCollector => _metricsCollector;
     private readonly ResiliencePipeline<byte[]?> _asyncGetPolicy;
     private readonly ResiliencePipeline<object?> _asyncSetPolicy;
     private readonly ResiliencePipeline<object?> _asyncRemovePolicy;
