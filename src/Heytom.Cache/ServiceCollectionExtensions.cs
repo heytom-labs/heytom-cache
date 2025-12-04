@@ -163,9 +163,14 @@ public static class ServiceCollectionExtensions
             var logger = serviceProvider.GetService<ILogger<HybridDistributedCache>>();
             var notifier = serviceProvider.GetService<ICacheInvalidationNotifier>();
             var subscriber = serviceProvider.GetService<ICacheInvalidationSubscriber>();
+            var serializer = serviceProvider.GetService<ISerializer>();
 
-            return new HybridDistributedCache(options, logger, notifier, subscriber);
+            return new HybridDistributedCache(options, logger, notifier, subscriber, serializer);
         });
+
+        // 注册 IHybridDistributedCache 接口
+        services.AddSingleton<IHybridDistributedCache>(serviceProvider =>
+            serviceProvider.GetRequiredService<HybridDistributedCache>());
 
         // 注册 IDistributedCache 接口
         services.AddSingleton<IDistributedCache>(serviceProvider =>

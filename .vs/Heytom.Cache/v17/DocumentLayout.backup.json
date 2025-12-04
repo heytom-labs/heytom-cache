@@ -3,12 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{5CFE16C0-FDC0-4216-AFFA-1B9F62A50B75}|samples\\Heytom.Cache.Sample\\Heytom.Cache.Sample.csproj|c:\\users\\public\\workspace\\heytom-labs\\heytom-cache\\samples\\heytom.cache.sample\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{5CFE16C0-FDC0-4216-AFFA-1B9F62A50B75}|samples\\Heytom.Cache.Sample\\Heytom.Cache.Sample.csproj|solutionrelative:samples\\heytom.cache.sample\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{47112B84-A4C1-4EF3-9850-040EF73F3553}|src\\Heytom.Cache\\Heytom.Cache.csproj|c:\\users\\public\\workspace\\heytom-labs\\heytom-cache\\src\\heytom.cache\\hybriddistributedcache.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{47112B84-A4C1-4EF3-9850-040EF73F3553}|src\\Heytom.Cache\\Heytom.Cache.csproj|solutionrelative:src\\heytom.cache\\hybriddistributedcache.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{47112B84-A4C1-4EF3-9850-040EF73F3553}|src\\Heytom.Cache\\Heytom.Cache.csproj|c:\\users\\public\\workspace\\heytom-labs\\heytom-cache\\src\\heytom.cache\\hybridcacheoptions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{47112B84-A4C1-4EF3-9850-040EF73F3553}|src\\Heytom.Cache\\Heytom.Cache.csproj|solutionrelative:src\\heytom.cache\\hybridcacheoptions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{5CFE16C0-FDC0-4216-AFFA-1B9F62A50B75}|samples\\Heytom.Cache.Sample\\Heytom.Cache.Sample.csproj|c:\\users\\public\\workspace\\heytom-labs\\heytom-cache\\samples\\heytom.cache.sample\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5CFE16C0-FDC0-4216-AFFA-1B9F62A50B75}|samples\\Heytom.Cache.Sample\\Heytom.Cache.Sample.csproj|solutionrelative:samples\\heytom.cache.sample\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5CFE16C0-FDC0-4216-AFFA-1B9F62A50B75}|samples\\Heytom.Cache.Sample\\Heytom.Cache.Sample.csproj|c:\\users\\public\\workspace\\heytom-labs\\heytom-cache\\samples\\heytom.cache.sample\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{5CFE16C0-FDC0-4216-AFFA-1B9F62A50B75}|samples\\Heytom.Cache.Sample\\Heytom.Cache.Sample.csproj|solutionrelative:samples\\heytom.cache.sample\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{5CFE16C0-FDC0-4216-AFFA-1B9F62A50B75}|samples\\Heytom.Cache.Sample\\Heytom.Cache.Sample.csproj|c:\\users\\public\\workspace\\heytom-labs\\heytom-cache\\samples\\heytom.cache.sample\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
@@ -111,6 +119,31 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "HybridDistributedCache.cs",
+              "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\src\\Heytom.Cache\\HybridDistributedCache.cs",
+              "RelativeDocumentMoniker": "src\\Heytom.Cache\\HybridDistributedCache.cs",
+              "ToolTip": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\src\\Heytom.Cache\\HybridDistributedCache.cs",
+              "RelativeToolTip": "src\\Heytom.Cache\\HybridDistributedCache.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-04T12:12:59.235Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "HybridCacheOptions.cs",
+              "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\src\\Heytom.Cache\\HybridCacheOptions.cs",
+              "RelativeDocumentMoniker": "src\\Heytom.Cache\\HybridCacheOptions.cs",
+              "ToolTip": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\src\\Heytom.Cache\\HybridCacheOptions.cs",
+              "RelativeToolTip": "src\\Heytom.Cache\\HybridCacheOptions.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-04T12:12:58.579Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "launchSettings.json",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\samples\\Heytom.Cache.Sample\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "samples\\Heytom.Cache.Sample\\Properties\\launchSettings.json",
@@ -118,12 +151,11 @@
               "RelativeToolTip": "samples\\Heytom.Cache.Sample\\Properties\\launchSettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-12-03T16:10:31.183Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-03T16:10:31.183Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\samples\\Heytom.Cache.Sample\\appsettings.json",
               "RelativeDocumentMoniker": "samples\\Heytom.Cache.Sample\\appsettings.json",
@@ -131,12 +163,11 @@
               "RelativeToolTip": "samples\\Heytom.Cache.Sample\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-12-03T16:10:24.058Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-03T16:10:24.058Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 10,
               "Title": "MetricsController.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\samples\\Heytom.Cache.Sample\\Controllers\\MetricsController.cs",
               "RelativeDocumentMoniker": "samples\\Heytom.Cache.Sample\\Controllers\\MetricsController.cs",
@@ -144,12 +175,11 @@
               "RelativeToolTip": "samples\\Heytom.Cache.Sample\\Controllers\\MetricsController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-03T15:46:45.083Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-03T15:46:45.083Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 11,
               "Title": "Heytom.Cache.Sample.http",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\samples\\Heytom.Cache.Sample\\Heytom.Cache.Sample.http",
               "RelativeDocumentMoniker": "samples\\Heytom.Cache.Sample\\Heytom.Cache.Sample.http",
@@ -157,12 +187,11 @@
               "RelativeToolTip": "samples\\Heytom.Cache.Sample\\Heytom.Cache.Sample.http",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003502|",
-              "WhenOpened": "2025-12-03T15:35:35.933Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-03T15:35:35.933Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 7,
               "Title": "ProductController.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\samples\\Heytom.Cache.Sample\\Controllers\\ProductController.cs",
               "RelativeDocumentMoniker": "samples\\Heytom.Cache.Sample\\Controllers\\ProductController.cs",
@@ -170,12 +199,11 @@
               "RelativeToolTip": "samples\\Heytom.Cache.Sample\\Controllers\\ProductController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-03T15:35:10.339Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-03T15:35:10.339Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 8,
               "Title": "RedisExtensionsController.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\samples\\Heytom.Cache.Sample\\Controllers\\RedisExtensionsController.cs",
               "RelativeDocumentMoniker": "samples\\Heytom.Cache.Sample\\Controllers\\RedisExtensionsController.cs",
@@ -183,12 +211,11 @@
               "RelativeToolTip": "samples\\Heytom.Cache.Sample\\Controllers\\RedisExtensionsController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-03T15:35:29.451Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-03T15:35:29.451Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 9,
               "Title": "BasicCacheController.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\samples\\Heytom.Cache.Sample\\Controllers\\BasicCacheController.cs",
               "RelativeDocumentMoniker": "samples\\Heytom.Cache.Sample\\Controllers\\BasicCacheController.cs",
@@ -196,25 +223,23 @@
               "RelativeToolTip": "samples\\Heytom.Cache.Sample\\Controllers\\BasicCacheController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-03T15:34:50.733Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-03T15:34:50.733Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\samples\\Heytom.Cache.Sample\\Program.cs",
               "RelativeDocumentMoniker": "samples\\Heytom.Cache.Sample\\Program.cs",
               "ToolTip": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\samples\\Heytom.Cache.Sample\\Program.cs",
               "RelativeToolTip": "samples\\Heytom.Cache.Sample\\Program.cs",
-              "ViewState": "AgIAACgAAAAAAAAAAAAEwC0AAAACAAAAAAAAAA==",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAADgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-03T15:30:35.967Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-03T15:30:35.967Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "MetricsCollector.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\src\\Heytom.Cache\\MetricsCollector.cs",
               "RelativeDocumentMoniker": "src\\Heytom.Cache\\MetricsCollector.cs",
@@ -222,12 +247,11 @@
               "RelativeToolTip": "src\\Heytom.Cache\\MetricsCollector.cs",
               "ViewState": "AgIAAGoAAAAAAAAAAADgv3gAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-03T05:27:00.148Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-03T05:27:00.148Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 12,
               "Title": "RabbitMQCacheInvalidationOptions.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\src\\Heytom.Cache.RabbitMQ\\RabbitMQCacheInvalidationOptions.cs",
               "RelativeDocumentMoniker": "src\\Heytom.Cache.RabbitMQ\\RabbitMQCacheInvalidationOptions.cs",
@@ -235,12 +259,11 @@
               "RelativeToolTip": "src\\Heytom.Cache.RabbitMQ\\RabbitMQCacheInvalidationOptions.cs",
               "ViewState": "AgIAAAsAAAAAAAAAAAAxwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-02T15:48:46.566Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-02T15:48:46.566Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 13,
               "Title": "RabbitMQCacheInvalidationNotifier.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\src\\Heytom.Cache.RabbitMQ\\RabbitMQCacheInvalidationNotifier.cs",
               "RelativeDocumentMoniker": "src\\Heytom.Cache.RabbitMQ\\RabbitMQCacheInvalidationNotifier.cs",
@@ -248,12 +271,11 @@
               "RelativeToolTip": "src\\Heytom.Cache.RabbitMQ\\RabbitMQCacheInvalidationNotifier.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-02T15:48:45.511Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-02T15:48:45.511Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "Heytom.Cache.Sample.csproj",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\samples\\Heytom.Cache.Sample\\Heytom.Cache.Sample.csproj",
               "RelativeDocumentMoniker": "samples\\Heytom.Cache.Sample\\Heytom.Cache.Sample.csproj",
@@ -261,12 +283,11 @@
               "RelativeToolTip": "samples\\Heytom.Cache.Sample\\Heytom.Cache.Sample.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-12-02T15:47:29.216Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-02T15:47:29.216Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 14,
               "Title": "ServiceCollectionExtensions.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\Heytom.Cache\\ServiceCollectionExtensions.cs",
               "RelativeDocumentMoniker": "Heytom.Cache\\ServiceCollectionExtensions.cs",
@@ -277,7 +298,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 15,
               "Title": "RedisCacheInvalidationSubscriber.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\Heytom.Cache\\Invalidation\\RedisCacheInvalidationSubscriber.cs",
               "RelativeDocumentMoniker": "Heytom.Cache\\Invalidation\\RedisCacheInvalidationSubscriber.cs",
@@ -288,7 +309,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 16,
               "Title": "RedisExtensionsController.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\Heytom.Cache.Sample\\Controllers\\RedisExtensionsController.cs",
               "RelativeDocumentMoniker": "Heytom.Cache.Sample\\Controllers\\RedisExtensionsController.cs",
@@ -299,7 +320,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 17,
               "Title": "IRedisExtensions.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\Heytom.Cache\\IRedisExtensions.cs",
               "RelativeDocumentMoniker": "Heytom.Cache\\IRedisExtensions.cs",
@@ -310,7 +331,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 18,
               "Title": "HybridDistributedCache.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\Heytom.Cache\\HybridDistributedCache.cs",
               "RelativeDocumentMoniker": "Heytom.Cache\\HybridDistributedCache.cs",
@@ -321,7 +342,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 19,
               "Title": "LocalCache.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\Heytom.Cache\\LocalCache.cs",
               "RelativeDocumentMoniker": "Heytom.Cache\\LocalCache.cs",
@@ -332,7 +353,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 20,
               "Title": "BasicCacheController.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\Heytom.Cache.Sample\\Controllers\\BasicCacheController.cs",
               "RelativeDocumentMoniker": "Heytom.Cache.Sample\\Controllers\\BasicCacheController.cs",
@@ -343,7 +364,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 21,
               "Title": "TimeoutTests.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\Heytom.Cache.Tests\\TimeoutTests.cs",
               "RelativeDocumentMoniker": "Heytom.Cache.Tests\\TimeoutTests.cs",
@@ -354,7 +375,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 22,
               "Title": "ServiceCollectionExtensionsTests.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\Heytom.Cache.Tests\\ServiceCollectionExtensionsTests.cs",
               "RelativeDocumentMoniker": "Heytom.Cache.Tests\\ServiceCollectionExtensionsTests.cs",
@@ -365,7 +386,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 23,
               "Title": "ResilienceTests.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\Heytom.Cache.Tests\\ResilienceTests.cs",
               "RelativeDocumentMoniker": "Heytom.Cache.Tests\\ResilienceTests.cs",
@@ -376,7 +397,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 24,
               "Title": "HybridDistributedCacheTests.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\Heytom.Cache.Tests\\HybridDistributedCacheTests.cs",
               "RelativeDocumentMoniker": "Heytom.Cache.Tests\\HybridDistributedCacheTests.cs",
@@ -387,7 +408,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 25,
               "Title": "RedisCache.cs",
               "DocumentMoniker": "C:\\Users\\Public\\WorkSpace\\heytom-labs\\heytom-cache\\Heytom.Cache\\RedisCache.cs",
               "RelativeDocumentMoniker": "Heytom.Cache\\RedisCache.cs",

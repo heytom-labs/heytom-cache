@@ -55,6 +55,35 @@ app.Run();
 
 ### 基本使用
 
+#### 泛型类型操作（推荐）
+
+```csharp
+public class ProductService
+{
+    private readonly IHybridDistributedCache _cache;
+
+    public ProductService(IHybridDistributedCache cache)
+    {
+        _cache = cache;
+    }
+
+    public async Task<Product> GetProductAsync(int id)
+    {
+        var key = $"product:{id}";
+        
+        // 使用 GetOrSet 一行代码实现 Cache-Aside 模式
+        return await _cache.GetOrSetAsync(
+            key,
+            async () => await LoadFromDatabaseAsync(id),
+            new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+            }
+        );
+    }
+}
+```
+
 #### 标准 IDistributedCache 操作
 
 ```csharp
@@ -71,8 +100,15 @@ public class ProductService
     {
         var key = $"product:{id}";
         
-        // 从缓存获取
-        var product = await _cache.GetAsync<Product>(key);
+        // 从缓存获取（需要手动序列化）
+        var bytes = await _cache.GetAsync(key);
+        Product? product = null;
+        
+        if (bytes != null)
+        {
+            var json = System.Text.Encoding.UTF8.GetString(bytes);
+            product = System.Text.Json.JsonSerializer.Deserialize<Product>(json);
+        }
         
         if (product == null)
         {
@@ -80,7 +116,10 @@ public class ProductService
             product = await LoadFromDatabaseAsync(id);
             
             // 存入缓存，5分钟后过期
-            await _cache.SetAsync(key, product, new DistributedCacheEntryOptions
+            var json = System.Text.Json.JsonSerializer.Serialize(product);
+            var bytes = System.Text.Encoding.UTF8.GetBytes(json);
+            
+            await _cache.SetAsync(key, bytes, new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
             });
@@ -299,6 +338,16 @@ Redis 查找
 - **降低 Redis 负载**: 本地缓存可减少 60-80% 的 Redis 请求
 - **提高可用性**: Redis 故障时仍可从本地缓存提供服务
 - **LRU 驱逐**: 自动管理本地缓存大小，防止内存溢出
+
+## 泛型类型方法
+
+Heytom.Cache 提供了泛型扩展方法，让你可以直接操作强类型对象：
+
+- `Get<T>` / `GetAsync<T>` - 获取强类型缓存值
+- `Set<T>` / `SetAsync<T>` - 设置强类型缓存值
+- `GetOrSet<T>` / `GetOrSetAsync<T>` - Cache-Aside 模式（推荐）
+
+详细使用说明请参阅 [泛型方法文档](docs/GENERIC-METHODS.md)。
 
 ## 示例项目
 

@@ -9,9 +9,9 @@ namespace Heytom.Cache;
 
 /// <summary>
 /// 混合分布式缓存实现，结合本地缓存和 Redis 缓存
-/// 实现 IDistributedCache 接口和 IRedisExtensions 接口
+/// 实现 IHybridDistributedCache 接口，提供标准缓存操作、Redis 扩展和泛型类型操作
 /// </summary>
-public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisposable
+public class HybridDistributedCache : IHybridDistributedCache
 {
     private readonly RedisCache _redisCache;
     private readonly LocalCache? _localCache;
@@ -20,6 +20,7 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
     private readonly MetricsCollector? _metricsCollector;
     private readonly ICacheInvalidationNotifier? _invalidationNotifier;
     private readonly ICacheInvalidationSubscriber? _invalidationSubscriber;
+    private readonly ISerializer _serializer;
 
     /// <summary>
     /// 获取指标收集器实例（如果启用了指标收集）
@@ -40,14 +41,17 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
     /// <param name="logger">日志记录器（可选）</param>
     /// <param name="invalidationNotifier">缓存失效通知器（可选）</param>
     /// <param name="invalidationSubscriber">缓存失效订阅器（可选）</param>
+    /// <param name="serializer">序列化器（可选，默认使用 JsonSerializer）</param>
     public HybridDistributedCache(
         HybridCacheOptions options,
         ILogger<HybridDistributedCache>? logger = null,
         ICacheInvalidationNotifier? invalidationNotifier = null,
-        ICacheInvalidationSubscriber? invalidationSubscriber = null)
+        ICacheInvalidationSubscriber? invalidationSubscriber = null,
+        ISerializer? serializer = null)
     {
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _logger = logger;
+        _serializer = serializer ?? new JsonSerializer();
 
         // 初始化 Redis 缓存
         _redisCache = new RedisCache(
@@ -912,6 +916,159 @@ public class HybridDistributedCache : IDistributedCache, IRedisExtensions, IDisp
             // 发布失败不应影响主流程
             _logger?.LogWarning(ex, "Failed to publish cache invalidation event for key: {Key}", key);
         }
+    }
+
+    #endregion
+
+    #region Generic Type Extensions
+
+    /// <summary>
+    /// 获取强类型缓存值（同步）
+    /// </summary>
+    /// <typeparam name="T">缓存值的类型</typeparam>
+    /// <param name="key">缓存键</param>
+    /// <returns>缓存值，如果不存在则返回 default(T)</returns>
+    public T? Get<T>(string key)
+    {
+        var bytes = Get(key);
+        if (bytes == null)
+        {
+            return default;
+        }
+
+        try
+        {
+            return _serializer.Deserialize<T>(bytes);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to deserialize cache value for key: {Key}", key);
+            return default;
+        }
+    }
+
+    /// <summary>
+    /// 异步获取强类型缓存值
+    /// </summary>
+    /// <typeparam name="T">缓存值的类型</typeparam>
+    /// <param name="key">缓存键</param>
+    /// <param name="token">取消令牌</param>
+    /// <returns>缓存值，如果不存在则返回 default(T)</returns>
+    public async Task<T?> GetAsync<T>(string key, CancellationToken token = default)
+    {
+        var bytes = await GetAsync(key, token).ConfigureAwait(false);
+        if (bytes == null)
+        {
+            return default;
+        }
+
+        try
+        {
+            return _serializer.Deserialize<T>(bytes);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to deserialize cache value for key: {Key}", key);
+            return default;
+        }
+    }
+
+    /// <summary>
+    /// 设置强类型缓存值（同步）
+    /// </summary>
+    /// <typeparam name="T">缓存值的类型</typeparam>
+    /// <param name="key">缓存键</param>
+    /// <param name="value">缓存值</param>
+    /// <param name="options">缓存选项（可选）</param>
+    public void Set<T>(string key, T value, DistributedCacheEntryOptions? options = null)
+    {
+        if (value == null)
+        {
+            throw new ArgumentNullException(nameof(value));
+        }
+
+        try
+        {
+            var bytes = _serializer.Serialize(value);
+            Set(key, bytes, options ?? new DistributedCacheEntryOptions());
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to serialize cache value for key: {Key}", key);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// 异步设置强类型缓存值
+    /// </summary>
+    /// <typeparam name="T">缓存值的类型</typeparam>
+    /// <param name="key">缓存键</param>
+    /// <param name="value">缓存值</param>
+    /// <param name="options">缓存选项（可选）</param>
+    /// <param name="token">取消令牌</param>
+    public async Task SetAsync<T>(string key, T value, DistributedCacheEntryOptions? options = null, CancellationToken token = default)
+    {
+        if (value == null)
+        {
+            throw new ArgumentNullException(nameof(value));
+        }
+
+        try
+        {
+            var bytes = _serializer.Serialize(value);
+            await SetAsync(key, bytes, options ?? new DistributedCacheEntryOptions(), token).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to serialize cache value for key: {Key}", key);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// 获取或设置缓存值（同步）
+    /// 如果缓存不存在，则执行工厂方法并缓存结果
+    /// </summary>
+    /// <typeparam name="T">缓存值的类型</typeparam>
+    /// <param name="key">缓存键</param>
+    /// <param name="factory">当缓存不存在时用于生成值的工厂方法</param>
+    /// <param name="options">缓存选项（可选）</param>
+    /// <returns>缓存值</returns>
+    public T GetOrSet<T>(string key, Func<T> factory, DistributedCacheEntryOptions? options = null)
+    {
+        var cached = Get<T>(key);
+        if (cached != null)
+        {
+            return cached;
+        }
+
+        var value = factory();
+        Set(key, value, options);
+        return value;
+    }
+
+    /// <summary>
+    /// 异步获取或设置缓存值
+    /// 如果缓存不存在，则执行工厂方法并缓存结果
+    /// </summary>
+    /// <typeparam name="T">缓存值的类型</typeparam>
+    /// <param name="key">缓存键</param>
+    /// <param name="factory">当缓存不存在时用于生成值的异步工厂方法</param>
+    /// <param name="options">缓存选项（可选）</param>
+    /// <param name="token">取消令牌</param>
+    /// <returns>缓存值</returns>
+    public async Task<T> GetOrSetAsync<T>(string key, Func<Task<T>> factory, DistributedCacheEntryOptions? options = null, CancellationToken token = default)
+    {
+        var cached = await GetAsync<T>(key, token).ConfigureAwait(false);
+        if (cached != null)
+        {
+            return cached;
+        }
+
+        var value = await factory().ConfigureAwait(false);
+        await SetAsync(key, value, options, token).ConfigureAwait(false);
+        return value;
     }
 
     #endregion
