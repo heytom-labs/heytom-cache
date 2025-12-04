@@ -191,5 +191,13 @@ public static class ServiceCollectionExtensions
             }
             return cache.MetricsCollector;
         });
+
+        // 注册分布式锁工厂
+        services.AddSingleton<DistributedLock.IDistributedLockFactory>(serviceProvider =>
+        {
+            var connection = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
+            var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
+            return new DistributedLock.RedisDistributedLockFactory(connection, loggerFactory);
+        });
     }
 }

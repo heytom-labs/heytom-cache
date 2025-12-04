@@ -8,8 +8,11 @@
 - ✅ 二级缓存架构（本地内存缓存 + Redis）
 - ✅ Redis 扩展功能（Hash、List、Set、Sorted Set、Pub/Sub）
 - ✅ 强类型对象序列化支持
+- ✅ 泛型类型 Get/Set 方法
+- ✅ 分布式锁（基于 Redis）
 - ✅ 弹性和容错机制（使用 Polly）
 - ✅ 性能指标收集和监控
+- ✅ OpenTelemetry 和 Prometheus 集成
 - ✅ 健康检查集成
 - ✅ 可配置的过期策略（绝对过期、滑动过期）
 - ✅ 异步优先的 API 设计
@@ -349,6 +352,37 @@ Heytom.Cache 提供了泛型扩展方法，让你可以直接操作强类型对�
 
 详细使用说明请参阅 [泛型方法文档](docs/GENERIC-METHODS.md)。
 
+## 分布式锁
+
+基于 Redis 的分布式锁实现，用于在分布式环境中实现互斥访问：
+
+```csharp
+public class OrderService
+{
+    private readonly IDistributedLockFactory _lockFactory;
+
+    public async Task<bool> ProcessOrderAsync(string orderId)
+    {
+        // 使用分布式锁防止重复处理
+        using var lockInstance = await _lockFactory.CreateLockAndAcquireAsync(
+            $"order:{orderId}",
+            TimeSpan.FromMinutes(5)
+        );
+
+        if (lockInstance == null)
+        {
+            return false; // 订单正在处理
+        }
+
+        // 处理订单
+        await DoProcessOrderAsync(orderId);
+        return true;
+    }
+}
+```
+
+详细使用说明请参阅 [分布式锁文档](docs/DISTRIBUTED-LOCK.md)。
+
 ## 示例项目
 
 查看 `Heytom.Cache.Sample` 项目获取完整示例：
@@ -397,16 +431,6 @@ dotnet test Heytom.Cache.Tests
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request！
-
-## 路线图
-
-- [ ] 支持 Redis Cluster 分片
-- [ ] 支持主从复制和哨兵模式
-- [ ] 缓存预热机制
-- [ ] 智能预取功能
-- [ ] 缓存标签和批量失效
-- [x] OpenTelemetry 集成
-- [x] Prometheus 指标导出
 
 ## 联系方式
 
